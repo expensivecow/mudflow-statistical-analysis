@@ -150,8 +150,12 @@ get_susi_mapping<-function() {
   return(get_normalized_file(susi_mapping))
 }
 
-get_dfile<-function() {
-  return(get_normalized_file(main_data))
+get_dtestfile<-function() {
+  return(get_normalized_file(test_data))
+}
+
+get_dtrainfile<-function() {
+  return(get_normalized_file(train_data))
 }
 
 get_repack_file<-function() {

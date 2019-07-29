@@ -138,7 +138,8 @@ parse_orca_output<-function(data, refdata, category, getweight=F, traindata=NA) 
 
 ########################
 
-dfile=get_dfile()
+dtrainfile=get_dtrainfile()
+dtestfile=get_dtestfile()
 susi_sources_name=get_susi_sources()
 base_dir=get_base_dir()
 if(!file.exists(base_dir)) {dir.create(base_dir,recursive=TRUE)}
@@ -148,37 +149,9 @@ library(doParallel)
 cl = makeCluster(n_cores)
 registerDoParallel(cl)
 if(0 %in% stage){
-    if (WITHIN){
-        susi_map_file=get_susi_mapping()# used only for within mode
-        susi_map=read.csv(file=susi_map_file, head=F, sep=";",strip.white=TRUE)
-        names(susi_map)<-c("api","susi")
-    }
-    if (loadRDS){
-        susi_sources = readRDS(file=to_rds(susi_sources_name))
-        data = readRDS(file=to_rds(dfile))
-        if(doBFILTER || doMFILTER){
-            vt_data=readRDS(file=to_rds(get_virustotal()))
-        }
-    }else{
-        susi_sources = read.csv(file=susi_sources_name, head=T, sep=";")
-        data = read.csv(file=dfile, head=TRUE, sep=";",check.names=F)
-        if(doBFILTER || doMFILTER){
-            vt_data=read.csv(file=get_virustotal(), head=TRUE, sep=";",check.names=F, stringsAsFactors=F)
-        }
-    }
-    ##cat("vt: ",nrow(vt_data),"\n")
-    #data$malicious<-data$malicious/malic_type
-    if (doJOIN){
-        join_file=paste0(path,get_join_table(),".csv")
-        join_data=read.csv(file=join_file, head=TRUE, sep=";",check.names=F)
-        data=join_data(data,join_data)
-    }
-    #make some apps from google play malicious
-    if (doMAKEMALIC){
-        malic_file=paste0(path,get_malic_table(),".csv")
-        malic_data=read.csv(file=malic_file, head=TRUE, sep=";",check.names=F)
-        data = make_malic_data(data,malic_data)
-    }
+    susi_sources = read.csv(file=susi_sources_name, head=T, sep=";")
+    train_data = read.csv(file=dtrainfile, head=TRUE, sep=";",check.names=F)
+    test_data = read.csv(file=dtestfile, head=TRUE, sep=";",check.names=F)
 
     cat("file name:",dfile,"\n")
     cat("data",dim(data),"\n")
@@ -187,17 +160,8 @@ if(0 %in% stage){
     sources_list=unique(susi_sources$s)
     gdata=list()#for future use
 
-    if (noSUSI){
-        sources_list=c('ALL')
-    }
-    if (doBFILTER){
-        fdata=vt_bfilter(cldata, vt_data)
-        trainset=fdata$trainset
-        testset=fdata$testset
-    }else{
-        trainset=data[data$malicious==0,]
-        testset=data[data$malicious==1,]
-    }
+    trainset=train_data[data$malicious==0,]
+    testset=test_data[data$malicious==1,]
 
     data_set = split_data_train_test(n.parts, trainset, testset)
 

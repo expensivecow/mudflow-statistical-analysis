@@ -22,7 +22,8 @@ id_cl="svm"
 loadRDS=T
 f_type="paper"
 main_sfx=""
-main_data=paste0(root_dir, "data/mudflow_",f_type,".csv")
+train_data=paste0(root_dir, "data/train_data_",f_type,".csv")
+test_data=paste0(root_dir, "data/test_data_",f_type,".csv")
 susi_list=paste0(root_dir, "data/susi_list_",f_type,".csv")
 susi_mapping=paste0('mapping_',f_type,'.txt')
 
